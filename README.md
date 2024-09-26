@@ -1,1 +1,1 @@
-# MIDS_Fall24_Capstone_LesionLens
+# Fall 2024 MIDS Capstone: LesionLens
