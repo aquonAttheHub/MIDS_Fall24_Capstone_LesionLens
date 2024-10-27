@@ -1,0 +1,18 @@
+# requirements.txt
+
+# Core dependencies
+fastapi==0.108.*
+uvicorn==0.25.*
+torch==2.0.*
+torchvision==0.15.*
+torchaudio==2.0.*
+
+# Dev dependencies
+pytest==7.4.*
+httpx==0.26.*
+ruff==0.1.*
+opencv-python
+numpy==1.*
+pillow
+python-multipart
+
