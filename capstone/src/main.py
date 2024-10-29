@@ -9,6 +9,7 @@ import cv2
 from detectron2.config import get_cfg # masking library
 from detectron2.engine import DefaultPredictor # masking library
 
+# 4 Main tabs - home page, info about data and model, app itself (define terms), meet the team page
 
 
 app = FastAPI()
@@ -29,7 +30,7 @@ def say_hello(name : str):
 		return {"message": f"Hello {name}"}
 
 
-@app.get("/upload")
+@app.post("/upload")
 def get_image_classification(file: UploadFile):
 	
 	resized_image = resize_image(file.file.read())
@@ -38,7 +39,8 @@ def get_image_classification(file: UploadFile):
 	normalized_image = normalize_image(masked_image)
 	#TODO: Connect to SageMaker Binary CNNs and get output
 	#TODO: Pass CNN output to Logistic Regression model.
-	return {"normalized image": normalized_image}
+    
+	return {"message": f"Type of resposne: {type(normalized_image)}, {normalized_image.shape}"}
 
 
 def resize_image(jpeg_image):
@@ -98,10 +100,10 @@ def mask_image(hair_removed_image):
     # output: masked_image (numpy.ndarray)
 
     # Read configuration and model weights paths for masking predictor
-    config_path = 'INSERT_PATH/mask_rcnn_config.yaml' # TODO: save yaml and insert proper path 
+    config_path = '../mask_rcnn_config.yaml' # TODO: save yaml and insert proper path 
     # path on google drive: '/content/drive/MyDrive/MIDS 210A - Capstone Project/Code/mask_rcnn_config.yaml'
 
-    model_weights_path = 'INSERT_PATH/mask_rcnn_model_weights.pth' # TODO: save pth and insert proper path
+    model_weights_path = '../mask_rcnn_model_weights.pth' # TODO: save pth and insert proper path
     # path on google drive: '/content/drive/MyDrive/MIDS 210A - Capstone Project/Code/mask_rcnn_model_weights.pth'
 
     # Load the configuration and model weights
@@ -109,6 +111,7 @@ def mask_image(hair_removed_image):
     cfg.merge_from_file(config_path)  # Loading the saved configuration
     cfg.MODEL.WEIGHTS = model_weights_path  # Loading the saved model weights
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5  # Set the threshold for inference
+    cfg.MODEL.DEVICE = "cpu"
 
     # Initialize the predictor with the loaded model
     predictor = DefaultPredictor(cfg)
