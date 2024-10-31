@@ -4,15 +4,26 @@ import torchvision
 
 from PIL import Image
 import io
+import os
+import boto3
 import numpy as np
 import cv2
 from detectron2.config import get_cfg # masking library
 from detectron2.engine import DefaultPredictor # masking library
+from dotenv import load_dotenv
 
 # 4 Main tabs - home page, info about data and model, app itself (define terms), meet the team page
 
+load_dotenv()
 
 app = FastAPI()
+
+# sagemaker_runtime = boto3.client(
+#     "sagemaker-runtime",
+#     region_name=os.getenv("AWS_REGION"),
+#     aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+#     aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+# )
 
 @app.get("/")
 def read_home():
@@ -39,6 +50,26 @@ def get_image_classification(file: UploadFile):
 	normalized_image = normalize_image(masked_image)
 	#TODO: Connect to SageMaker Binary CNNs and get output
 	#TODO: Pass CNN output to Logistic Regression model.
+    # try:
+    #     # Example preprocessing
+    #     # Assume you have processed 'input_data' to obtain a numpy array of shape (224, 224, 3)
+
+    #     # Convert numpy array to JSON-compatible format
+    #     payload = json.dumps(normalized_image.tolist())  # or use base64 encoding if required
+
+    #     # Invoke the SageMaker endpoint
+    #     response = sagemaker_runtime.invoke_endpoint(
+    #         EndpointName="your-sagemaker-endpoint-name",
+    #         ContentType="application/json",  # or "application/x-image" if base64
+    #         Body=payload
+    #     )
+
+    #     # Decode and return the response
+    #     result = json.loads(response["Body"].read().decode())
+    #     return {"prediction": result}
+
+    # except Exception as e:
+    #     raise HTTPException(status_code=500, detail=str(e))
     
 	return {"message": f"Type of resposne: {type(normalized_image)}, {normalized_image.shape}"}
 
