@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile
 import torch
 import torchvision
+import asyncio
 
 from PIL import Image
 import io
@@ -24,6 +25,30 @@ app = FastAPI()
 #     aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
 #     aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
 # )
+
+# List of your 5 SageMaker endpoint names
+ENDPOINT_NAMES = [
+    "model-endpoint-1",
+    "model-endpoint-2",
+    "model-endpoint-3",
+    "model-endpoint-4",
+    "model-endpoint-5",
+]
+
+async def invoke_model(endpoint_name, payload):
+    """Asynchronous function to invoke a SageMaker endpoint."""
+    try:
+        response = sagemaker_runtime.invoke_endpoint(
+            EndpointName=endpoint_name,
+            ContentType="application/json",
+            Body=payload
+        )
+        # Decode the response
+        result = json.loads(response["Body"].read().decode())
+        return {endpoint_name: result}
+    except Exception as e:
+        return {endpoint_name: str(e)}
+
 
 @app.get("/")
 def read_home():
@@ -50,26 +75,20 @@ def get_image_classification(file: UploadFile):
 	normalized_image = normalize_image(masked_image)
 	#TODO: Connect to SageMaker Binary CNNs and get output
 	#TODO: Pass CNN output to Logistic Regression model.
-    # try:
-    #     # Example preprocessing
-    #     # Assume you have processed 'input_data' to obtain a numpy array of shape (224, 224, 3)
+    try:
+        # Example preprocessing
+        payload = json.dumps(normalized_image.tolist())
 
-    #     # Convert numpy array to JSON-compatible format
-    #     payload = json.dumps(normalized_image.tolist())  # or use base64 encoding if required
+        # Use asyncio.gather to call all endpoints concurrently
+        tasks = [invoke_model(endpoint_name, payload) for endpoint_name in ENDPOINT_NAMES]
+        results = await asyncio.gather(*tasks)
 
-    #     # Invoke the SageMaker endpoint
-    #     response = sagemaker_runtime.invoke_endpoint(
-    #         EndpointName="your-sagemaker-endpoint-name",
-    #         ContentType="application/json",  # or "application/x-image" if base64
-    #         Body=payload
-    #     )
+        # Aggregate the results into a single response
+        aggregated_results = {k: v for result in results for k, v in result.items()}
+        return {"predictions": aggregated_results}
 
-    #     # Decode and return the response
-    #     result = json.loads(response["Body"].read().decode())
-    #     return {"prediction": result}
-
-    # except Exception as e:
-    #     raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     
 	return {"message": f"Type of resposne: {type(normalized_image)}, {normalized_image.shape}"}
 

@@ -16,3 +16,4 @@ numpy==1.*
 pillow
 python-multipart
 boto3
+asyncio
