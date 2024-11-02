@@ -19,12 +19,14 @@ load_dotenv()
 
 app = FastAPI()
 
-# sagemaker_runtime = boto3.client(
-#     "sagemaker-runtime",
-#     region_name=os.getenv("AWS_REGION"),
-#     aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-#     aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-# )
+sagemaker_runtime = boto3.client(
+    "sagemaker-runtime",
+    region_name=os.getenv("AWS_REGION"),
+    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+)
+
+MULTI_MODEL_ENDPOINT_NAME = "your-multi-model-endpoint-name"
 
 # List of your 5 SageMaker endpoint names
 ENDPOINT_NAMES = [
@@ -35,19 +37,21 @@ ENDPOINT_NAMES = [
     "model-endpoint-5",
 ]
 
-async def invoke_model(endpoint_name, payload):
-    """Asynchronous function to invoke a SageMaker endpoint."""
+
+async def invoke_model(model_name, payload):
+    """Function to invoke a specific model on the SageMaker multi-model endpoint."""
     try:
         response = sagemaker_runtime.invoke_endpoint(
-            EndpointName=endpoint_name,
+            EndpointName=MULTI_MODEL_ENDPOINT_NAME,
             ContentType="application/json",
+            TargetModel=f"{model_name}.tar.gz",  # Specify the model name
             Body=payload
         )
         # Decode the response
         result = json.loads(response["Body"].read().decode())
-        return {endpoint_name: result}
+        return {model_name: result}
     except Exception as e:
-        return {endpoint_name: str(e)}
+        return {model_name: str(e)}
 
 
 @app.get("/")
@@ -79,8 +83,11 @@ def get_image_classification(file: UploadFile):
         # Example preprocessing
         payload = json.dumps(normalized_image.tolist())
 
-        # Use asyncio.gather to call all endpoints concurrently
-        tasks = [invoke_model(endpoint_name, payload) for endpoint_name in ENDPOINT_NAMES]
+        # List of your model names
+        model_names = ["model-1", "model-2", "model-3", "model-4", "model-5"]
+
+        # Use asyncio.gather to call all models concurrently
+        tasks = [invoke_model(model_name, payload) for model_name in model_names]
         results = await asyncio.gather(*tasks)
 
         # Aggregate the results into a single response
