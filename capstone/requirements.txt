@@ -3,9 +3,12 @@
 # Core dependencies
 fastapi==0.108.*
 uvicorn==0.25.*
+
+
 torch==2.0.*
 torchvision==0.15.*
 torchaudio==2.0.*
+detectron2
 
 # Dev dependencies
 pytest==7.4.*
@@ -17,3 +20,4 @@ pillow
 python-multipart
 boto3
 asyncio
+python-dotenv

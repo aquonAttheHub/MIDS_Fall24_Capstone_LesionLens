@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile
+from fastapi import FastAPI, UploadFile, HTTPException
 import torch
 import torchvision
 import asyncio
@@ -6,50 +6,41 @@ import asyncio
 from PIL import Image
 import io
 import os
-import boto3
+import json
 import numpy as np
 import cv2
 from detectron2.config import get_cfg # masking library
 from detectron2.engine import DefaultPredictor # masking library
 from dotenv import load_dotenv
 
+from sagemaker.tensorflow import TensorFlowModel
+import boto3
+
 # 4 Main tabs - home page, info about data and model, app itself (define terms), meet the team page
+# pip install -r requirements.txt + pip install git+https://github.com/facebookresearch/detectron2.git
 
 load_dotenv()
 
 app = FastAPI()
 
-sagemaker_runtime = boto3.client(
-    "sagemaker-runtime",
-    region_name=os.getenv("AWS_REGION"),
-    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-)
+aws_access_key_id = '[Your Key ID]'
+aws_secret_access_key = '[Your Key]'
 
-MULTI_MODEL_ENDPOINT_NAME = "your-multi-model-endpoint-name"
-
-# List of your 5 SageMaker endpoint names
-ENDPOINT_NAMES = [
-    "model-endpoint-1",
-    "model-endpoint-2",
-    "model-endpoint-3",
-    "model-endpoint-4",
-    "model-endpoint-5",
-]
-
+sagemaker_runtime = boto3.client('sagemaker-runtime', aws_access_key_id=aws_access_key_id,
+                aws_secret_access_key=aws_secret_access_key,
+                region_name='us-east-1')
 
 async def invoke_model(model_name, payload):
     """Function to invoke a specific model on the SageMaker multi-model endpoint."""
     try:
         response = sagemaker_runtime.invoke_endpoint(
-            EndpointName=MULTI_MODEL_ENDPOINT_NAME,
-            ContentType="application/json",
-            TargetModel=f"{model_name}.tar.gz",  # Specify the model name
-            Body=payload
+            EndpointName=model_name,
+            ContentType='application/json',  # Use 'application/x-npy' if the model expects raw bytes
+            Body=json.dumps(payload)
         )
         # Decode the response
         result = json.loads(response["Body"].read().decode())
-        return {model_name: result}
+        return result
     except Exception as e:
         return {model_name: str(e)}
 
@@ -71,33 +62,45 @@ def say_hello(name : str):
 
 
 @app.post("/upload")
-def get_image_classification(file: UploadFile):
-	
-	resized_image = resize_image(file.file.read())
-	hair_removed_image = remove_hair(resized_image)
-	masked_image = mask_image(hair_removed_image)
-	normalized_image = normalize_image(masked_image)
-	#TODO: Connect to SageMaker Binary CNNs and get output
-	#TODO: Pass CNN output to Logistic Regression model.
+async def get_image_classification(file: UploadFile):
+    resized_image = resize_image(file.file.read())
+    hair_removed_image = remove_hair(resized_image)
+    masked_image = mask_image(hair_removed_image)
+    normalized_image = normalize_image(masked_image).astype(np.float32)
+    input_data = np.expand_dims(normalized_image, axis=0)
+
+    # Create request payload
     try:
         # Example preprocessing
-        payload = json.dumps(normalized_image.tolist())
+        input_data_list = input_data.tolist()
+        payload = {"instances": input_data_list}
 
         # List of your model names
-        model_names = ["model-1", "model-2", "model-3", "model-4", "model-5"]
+        model_names = ["mod-1", "mod-2", "mod-3", "mod-4"]
 
         # Use asyncio.gather to call all models concurrently
         tasks = [invoke_model(model_name, payload) for model_name in model_names]
-        results = await asyncio.gather(*tasks)
+        ensemble_results = await asyncio.gather(*tasks)
+        ensemble_results = np.array([ensemble_result["predictions"][0][0] for ensemble_result in ensemble_results]).flatten()
+        ensemble_results = np.expand_dims(ensemble_results, axis=0)
+
+        input_data_list = ensemble_results.tolist()
+        payload = {"instances": input_data_list}
+
+        response = sagemaker_runtime.invoke_endpoint(
+            EndpointName="test-endpoint-serverless-metalearn-nosenet-4",
+            ContentType='application/json',  # Use 'application/x-npy' if the model expects raw bytes
+            Body=json.dumps(payload)
+        )
 
         # Aggregate the results into a single response
-        aggregated_results = {k: v for result in results for k, v in result.items()}
-        return {"predictions": aggregated_results}
+        # aggregated_results = {k: v for result in results for k, v in result.items()}
+
+        return response['Body'].read().decode()
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
-	return {"message": f"Type of resposne: {type(normalized_image)}, {normalized_image.shape}"}
+    return {"message": f"Type of resposne: {type(input_data)}, {input_data.shape}, {normalized_image.dtype}"}
 
 
 def resize_image(jpeg_image):
