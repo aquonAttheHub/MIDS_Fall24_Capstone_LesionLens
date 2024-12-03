@@ -5,7 +5,6 @@ from fastapi_cache.backends.redis import RedisBackend
 from redis.asyncio import Redis
 from contextlib import asynccontextmanager
 
-#from pydantic import BaseModel, ValidationError, root_validator
 from typing import Any
 
 import torch
@@ -134,9 +133,6 @@ async def get_image_classification(file: UploadFile):
         body_content = response['Body'].read().decode()
 
         await cache_backend.set(image_hash, body_content) 
-
-        #Aggregate the results into a single response
-        # aggregated_results = {k: v for result in results for k, v in result.items()}
 
         return body_content
 
