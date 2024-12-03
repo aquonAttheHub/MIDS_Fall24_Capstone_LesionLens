@@ -1,12 +1,23 @@
 from fastapi import FastAPI, UploadFile, HTTPException
+from fastapi_cache import FastAPICache
+from fastapi_cache.decorator import cache
+from fastapi_cache.backends.redis import RedisBackend
+from redis.asyncio import Redis
+from contextlib import asynccontextmanager
+
+#from pydantic import BaseModel, ValidationError, root_validator
+from typing import Any
+
 import torch
 import torchvision
 import asyncio
 
 from PIL import Image
+from hashlib import sha256
 import io
 import os
 import json
+import logging
 import numpy as np
 import cv2
 from detectron2.config import get_cfg # masking library
@@ -21,14 +32,30 @@ import boto3
 
 load_dotenv()
 
-app = FastAPI()
+logger = logging.getLogger(__name__)
 
-aws_access_key_id = '[Your Key ID]'
-aws_secret_access_key = '[Your Key]'
+#LOCAL_REDIS_URL = "redis://localhost:6379/"
 
-sagemaker_runtime = boto3.client('sagemaker-runtime', aws_access_key_id=aws_access_key_id,
-                aws_secret_access_key=aws_secret_access_key,
-                region_name='us-east-1')
+# Creat AWS Boto3 Client Session
+sagemaker_runtime = boto3.client('sagemaker-runtime', aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+            region_name=os.getenv("REGION_NAME"))
+
+
+@asynccontextmanager
+async def lifespan_mechanism(app: FastAPI):
+    logging.info("Starting Up LesionLens Application")
+    
+    # Load the Redis Cache
+    redis = Redis(host="localhost", port=6379, decode_responses=True)  # Adjust host/port as needed
+    backend = RedisBackend(redis)
+    FastAPICache.init(backend, prefix="fastapi-cache")
+
+    yield
+    # We don't need a shutdown event for our system, but we could put something
+    # here after the yield to deal with things during shutdown
+    logging.info("Shutting Down LesionLens Application")
+
 
 async def invoke_model(model_name, payload):
     """Function to invoke a specific model on the SageMaker multi-model endpoint."""
@@ -43,6 +70,9 @@ async def invoke_model(model_name, payload):
         return result
     except Exception as e:
         return {model_name: str(e)}
+
+
+app = FastAPI(lifespan=lifespan_mechanism)
 
 
 @app.get("/")
@@ -63,7 +93,16 @@ def say_hello(name : str):
 
 @app.post("/upload")
 async def get_image_classification(file: UploadFile):
-    resized_image = resize_image(file.file.read())
+
+    image_bytes = await file.read()
+    image_hash = sha256(image_bytes).hexdigest()
+    cache_backend = FastAPICache.get_backend() 
+    cached_result = await cache_backend.get(image_hash)
+
+    if cached_result:
+        return cached_result
+
+    resized_image = resize_image(image_bytes)
     hair_removed_image = remove_hair(resized_image)
     masked_image = mask_image(hair_removed_image)
     normalized_image = normalize_image(masked_image).astype(np.float32)
@@ -76,7 +115,7 @@ async def get_image_classification(file: UploadFile):
         payload = {"instances": input_data_list}
 
         # List of your model names
-        model_names = ["mod-1", "mod-2", "mod-3", "mod-4"]
+        model_names = ["test-endpoint-serverless-ensemble-1", "test-endpoint-serverless-ensemble-2-1", "test-endpoint-serverless-ensemble-31", "test-endpoint-serverless-ensemble-4"]
 
         # Use asyncio.gather to call all models concurrently
         tasks = [invoke_model(model_name, payload) for model_name in model_names]
@@ -88,19 +127,21 @@ async def get_image_classification(file: UploadFile):
         payload = {"instances": input_data_list}
 
         response = sagemaker_runtime.invoke_endpoint(
-            EndpointName="test-endpoint-serverless-metalearn-nosenet-4",
+            EndpointName="test-serverless-metalearn-nosenet-4-1",
             ContentType='application/json',  # Use 'application/x-npy' if the model expects raw bytes
             Body=json.dumps(payload)
         )
+        body_content = response['Body'].read().decode()
 
-        # Aggregate the results into a single response
+        await cache_backend.set(image_hash, body_content) 
+
+        #Aggregate the results into a single response
         # aggregated_results = {k: v for result in results for k, v in result.items()}
 
-        return response['Body'].read().decode()
+        return body_content
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    return {"message": f"Type of resposne: {type(input_data)}, {input_data.shape}, {normalized_image.dtype}"}
 
 
 def resize_image(jpeg_image):

@@ -21,3 +21,6 @@ python-multipart
 boto3
 asyncio
 python-dotenv
+pydantic==2.5
+fastapi-cache2
+redis==5.0.0
