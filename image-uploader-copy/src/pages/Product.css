@@ -1,0 +1,106 @@
+/* src/pages/HowToUse.css */
+
+.how-to-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 40px;
+  background-color: #ffffff;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+  
+h1 {
+  font-size: 2rem;
+  color: #013b71; /* Dark blue for a professional look */
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.step {
+  margin-bottom: 30px;
+}
+
+.step h2 {
+  font-size: 1.5rem;
+  color: #013b71;
+  margin-bottom: 10px;
+}
+
+.image-preview {
+  margin-top: 10px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+input[type="file"] {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.save-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #013b71;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.save-button:hover {
+  background-color: #015ea3; /* Slightly lighter blue on hover */
+}
+
+.instructions {
+  font-size: 0.85rem; /* Smaller font size */
+  color: #555; /* Medium grey for a softer appearance */
+  margin-top: 10px;
+  padding-left: 20px; /* Indent bullets slightly */
+}
+
+.instructions li {
+  margin-bottom: 5px; /* Adds space between bullet points */
+}
+
+.loading {
+  font-size: 18px;
+  margin-top: 20px;
+  color: #333;
+  font-weight: bold;
+}
+
+.dots {
+  display: inline-block;
+  width: 20px;
+  text-align: center;
+  animation: dot-blinking 1s infinite steps(1);
+}
+
+@keyframes dot-blinking {
+  0% {
+    opacity: 0;
+  }
+  33% {
+    opacity: 1;
+  }
+  66% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1; 
+  }
+}
+
+.result {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f7f7f7;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.result p {
+  font-size: 16px;
+  line-height: 1.5;
+}

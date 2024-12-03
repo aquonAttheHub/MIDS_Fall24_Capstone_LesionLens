@@ -1,0 +1,61 @@
+.lesion-lens-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px;
+  background-color: white;
+}
+
+.lesion-header {
+  color: #013b71; /* Dark blue */
+  text-align: left;
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.divider {
+  border: none;
+  border-top: 1.2px solid #a5a5a5; /* Light grey for professional contrast */
+  margin: 15px 0;
+}
+
+.lesion-text {
+  color: #333; /* Dark grey for readability */
+  font-size: 0.95rem;
+  line-height: 1.6;
+  text-align: justify;
+}
+
+.model-performance-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.model-performance-table th,
+.model-performance-table td {
+  border: 1px solid #c4c4c4; /* Light grey border */
+  padding: 12px;
+  text-align: center;
+}
+
+.model-performance-table th {
+  background-color: #013b71; /* Dark blue header for contrast */
+  color: #ffffff; /* White text */
+}
+
+.model-performance-table tr:nth-child(even) {
+  background-color: #f9f9f9; /* Light grey for even rows */
+}
+
+.model-performance-table tr:hover {
+  background-color: #f1f1f1; /* Subtle hover effect */
+}
+
+.definitions {
+  font-size: 0.8rem;
+  color: #666; /* Slightly lighter grey for smaller, explanatory text */
+  margin-top: 10px;
+  text-align: left;
+}

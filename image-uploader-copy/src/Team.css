@@ -1,0 +1,67 @@
+.team-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center content vertically */
+  align-items: center; /* Center content horizontally */
+  text-align: center;
+  text-align: center;
+}
+
+.team-page h1 {
+  margin-top: 25px;
+  color: #013b71;
+  margin-bottom: 30px;
+}
+
+.team-member h2 {
+  padding: 5px 0; /* Reduces vertical padding around the name */
+  margin: 0; /* Remove any default margins */
+}
+
+
+.top-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Three columns for the top row */
+  gap: 50px; /* Adds spacing between items */
+  justify-content: center; /* Centers the grid horizontally */
+  margin-bottom: 30px;
+}
+
+.bottom-row {
+  display: flex; /* Use flexbox for the second row */
+  justify-content: center; /* Center the items horizontally */
+  gap: 50px; /* Adds spacing between the two boxes */
+}
+
+.team-member {
+  width: 300px;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.team-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 15px;
+}
+
+.team-member h2 {
+  font-size: 1.5rem;
+  color: #013b71;
+}
+
+.team-member h3 {
+  font-size: 1.1rem;
+  color: #555;
+  margin: 5px 0;
+}
+
+.team-member p {
+  font-size: 0.9rem;
+  color: #666;
+}
