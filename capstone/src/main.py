@@ -2,6 +2,8 @@ from fastapi import FastAPI, UploadFile, HTTPException
 from fastapi_cache import FastAPICache
 from fastapi_cache.decorator import cache
 from fastapi_cache.backends.redis import RedisBackend
+from fastapi.middleware.cors import CORSMiddleware
+
 from redis.asyncio import Redis
 from contextlib import asynccontextmanager
 
@@ -72,6 +74,14 @@ async def invoke_model(model_name, payload):
 
 
 app = FastAPI(lifespan=lifespan_mechanism)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Allow requests from your frontend
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
