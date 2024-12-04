@@ -33,7 +33,7 @@ const teamMembers = [
   },
   {
     name: "Anson Quon",
-    role: "Infrastructure Lead, Backend Developer",
+    role: "Infrastructure Lead, Full-Stack Developer",
     image: ansonImage, // Replace with a real image URL or path
     linkedin: "https://www.linkedin.com/in/anson-quon/"
   },

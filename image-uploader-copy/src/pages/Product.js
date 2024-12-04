@@ -1,11 +1,13 @@
 // src/pages/HowToUse.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Product.css';
+import axios from 'axios';
 
 function Product() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [loading, setLoading] = useState(false); // To manage loading state
   const [result, setResult] = useState(null); // To store the result message
+  const formData = new FormData();
 
   const handleImageChange = (event) => {
     if (event.target.files && event.target.files[0]) {
@@ -14,27 +16,26 @@ function Product() {
     }
   };
 
-  const handleSave = () => {
-    if (selectedImage) {
-      console.log("Image sent to model:", selectedImage);
-      //make API call here
-      alert("Image successfully sent to the model!");
-      // Show loading state
-      setLoading(true);
-
-      // Simulate a 10-second delay to mock model processing
-      setTimeout(() => {
-        setLoading(false);
-        
-        // Simulate the result after 10 seconds
-        setResult(
-          "Our model has identified your lesion as potentially benign with a confidence level of 78%. However, please note that distinguishing between benign and malignant lesions can be challenging based on visual inspection alone, even for dermatologists. This machine-learning result is intended as diagnostic support and should not replace a medical diagnosis. We strongly recommend consulting a dermatologist for a thorough assessment, as a biopsy may be necessary for complete accuracy. For more information on our model’s inner workings, please visit the Model Details page."
-        );
-      }, 3000); // 10 seconds
-    } else {
-      alert("Please upload an image first.");
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (!selectedImage) {
+      alert("Please upload an image!");
+      return;
     }
-  };
+    const formData = new FormData();
+    formData.append("file", selectedImage);
+
+    try {
+      const res = await axios.post("http://localhost:8000/upload/", formData, {
+          headers: {
+              "Content-Type": "multipart/form-data",
+          },
+      });
+      setResult(res.data); // Update state with server response
+    } catch (error) {
+        console.error("Error uploading the file:", error); // Log any errors
+    }
+  }
 
   return (
     <div className="how-to-container">
@@ -59,7 +60,7 @@ function Product() {
       {/* Step 2 */}
       <div className="step">
         <h2>Step 2: Generate Diagnostic Support</h2>
-        <button onClick={handleSave} className="save-button">
+        <button onClick={handleSubmit} className="save-button">
           Generate Diagnostic Support
         </button>
 
