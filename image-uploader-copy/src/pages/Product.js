@@ -25,13 +25,27 @@ function Product() {
     const formData = new FormData();
     formData.append("file", selectedImage);
 
+    // if<  0.5 benign (1 - number)
+
     try {
       const res = await axios.post("http://localhost:8000/upload/", formData, {
           headers: {
               "Content-Type": "multipart/form-data",
           },
       });
-      setResult(res.data); // Update state with server response
+      const responseObject = JSON.parse(res.data);
+      const number = responseObject.predictions[0][0][0];
+      if (number < 0.5) {
+        setResult(
+          `Our model has identified your lesion as potentially benign with a risk assessment score of ${Math.floor((1-number)*100)}%. However, please note that distinguishing between benign and malignant lesions can be challenging based on visual inspection alone, even for dermatologists. This machine-learning result is intended as diagnostic support and should not replace a medical diagnosis. We strongly recommend consulting a dermatologist for a thorough assessment, as a biopsy may be necessary for complete accuracy. For more information on our model’s inner workings, please visit the Model Details page.`
+        );
+      } else {
+        setResult(
+          `Our model has identified your lesion as potentially malignant with a risk assessment score of ${Math.floor(number * 100)}%. However, please note that distinguishing between benign and malignant lesions can be challenging based on visual inspection alone, even for dermatologists. This machine-learning result is intended as diagnostic support and should not replace a medical diagnosis. We strongly recommend consulting a dermatologist for a thorough assessment, as a biopsy may be necessary for complete accuracy. For more information on our model’s inner workings, please visit the Model Details page.`
+        )
+      }
+      
+      console.log(number);
     } catch (error) {
         console.error("Error uploading the file:", error); // Log any errors
     }
