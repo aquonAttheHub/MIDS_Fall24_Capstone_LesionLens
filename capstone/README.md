@@ -10,7 +10,7 @@ NOTE: Just my opinion, but a good practice is to create a python virtual environ
 
 What I do, assuming virtualenv has been installed:
 
-1. Type `virtualenv .venv` in the command line terminal within the `MIDS_Fall24_Capstone_LesionLens` directory.
+1. Type `virtualenv .venv` in the command line terminal within the `MIDS_Fall24_Capstone_LesionLens` directory. For reference, my python version is 3.9.1 within the virtual environment.
 
 2. To activate the virtual environment, type `source .venv/bin/activate`.
 
