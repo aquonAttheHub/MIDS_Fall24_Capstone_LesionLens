@@ -14,16 +14,15 @@ function LesionLens() {
         benign lesions by visual examination alone, even for trained clinicians. Thus, diagnostic processes for skin 
         lesions are inefficient, with unnecessary biopsy rates reaching up to 99.9% 
         (<a href="https://www.isic-archive.com/mission" target="_blank" rel="noopener noreferrer">International Skin Imaging Collaboration</a> n.d.),
-        , leading to higher healthcare costs and potentially exacerbating patient anxiety. 
+        leading to higher healthcare costs and potentially exacerbating patient anxiety. 
         Additionally, even in areas with access to dermatological care, patients face barriers such as high costs 
         and long wait times. In the United States, the average out-of-pocket cost for an uninsured dermatology 
         appointment is over $150, and wait times for consultations can extend up to 78 days (
         <a href="https://walkindermatology.com/how-much-does-it-cost-to-see-a-dermatologist-without-insurance/" target="_blank" rel="noopener noreferrer">Walk-in Dermatology</a>
-        ,n.d-a, n.d.-b). The health risks associated with delayed or missed melanoma diagnoses emphasize the need 
+        , n.d-a, n.d.-b). The health risks associated with delayed or missed melanoma diagnoses emphasize the need 
         to improve visual diagnostic accuracy for skin lesions. The five-year survival rate of this skin cancer 
         ranges from 99% for stage 1 to 30% for stage 4 melanoma (
           <a href="https://www.healthline.com/health/melanoma-prognosis-and-survival-rates" target="_blank" rel="noopener noreferrer">Healthline</a>
-          Healthline
         , 2023). Given the rapid growth of 
         smartphones and mobile health solutions, there is a promising opportunity to enhance access to care through 
         direct-to-consumer tele-consultation services for skin lesions. However, challenges remain, particularly 

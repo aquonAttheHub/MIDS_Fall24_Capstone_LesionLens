@@ -37,11 +37,11 @@ function Product() {
       const number = responseObject.predictions[0][0][0];
       if (number < 0.5) {
         setResult(
-          `Our model has identified your lesion as potentially benign with a risk assessment score of ${Math.floor((1-number)*100)}%. However, please note that distinguishing between benign and malignant lesions can be challenging based on visual inspection alone, even for dermatologists. This machine-learning result is intended as diagnostic support and should not replace a medical diagnosis. We strongly recommend consulting a dermatologist for a thorough assessment, as a biopsy may be necessary for complete accuracy. For more information on our model’s inner workings, please visit the Model Details page.`
+          `Our model has identified your lesion as potentially benign with a probability of ${Math.floor((1-number)*100)}%. However, please note that distinguishing between benign and malignant lesions can be challenging based on visual inspection alone, even for dermatologists. This machine-learning result is intended as diagnostic support and should not replace a medical diagnosis. We strongly recommend consulting a dermatologist for a thorough assessment, as a biopsy may be necessary for complete accuracy. For more information on our model’s inner workings, please visit the Model Details page.`
         );
       } else {
         setResult(
-          `Our model has identified your lesion as potentially malignant with a risk assessment score of ${Math.floor(number * 100)}%. However, please note that distinguishing between benign and malignant lesions can be challenging based on visual inspection alone, even for dermatologists. This machine-learning result is intended as diagnostic support and should not replace a medical diagnosis. We strongly recommend consulting a dermatologist for a thorough assessment, as a biopsy may be necessary for complete accuracy. For more information on our model’s inner workings, please visit the Model Details page.`
+          `Our model has identified your lesion as potentially malignant with a probability of ${Math.floor(number * 100)}%. However, please note that distinguishing between benign and malignant lesions can be challenging based on visual inspection alone, even for dermatologists. This machine-learning result is intended as diagnostic support and should not replace a medical diagnosis. We strongly recommend consulting a dermatologist for a thorough assessment, as a biopsy may be necessary for complete accuracy. For more information on our model’s inner workings, please visit the Model Details page.`
         )
       }
       
@@ -64,10 +64,10 @@ function Product() {
         )}
         <ul className="instructions">
           <li>Use the Highest-Quality Camera Available: Please take photos with the best camera accessible to you (e.g., smartphone, digital camera).</li>
+          <li>Make Sure it’s a Skin Lesion: we define a lesion as a pigmented region of the skin, usually called a birth-mark or a mole.</li>
           <li>Center the Lesion: Position the camera close enough so that the lesion is clearly the focal point of the image.</li>
           <li>Ensure Clear Focus and Lighting: Make sure the image is in focus, in well-lit conditions, and free of shadows.</li>
           <li>Ensure JPEG File Type: Convert your image to JPEG.</li>
-          <li>View Sample Images: For examples of acceptable photo quality, click the button below.</li>
         </ul>
       </div>
 

@@ -86,7 +86,7 @@ function ModelDetails() {
             <td>88.8%</td>
             <td>Not reported.</td>
             <td>83.8%</td>
-            <td>DNot reported.</td>
+            <td>Not reported.</td>
             <td>88.8%</td>
           </tr>
           <tr>
